@@ -27,38 +27,47 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Dark mode elements
   const darkModeToggle = document.getElementById("dark-mode-toggle");
-  const themeIcon = darkModeToggle.querySelector(".theme-icon");
-  const themeText = darkModeToggle.querySelector("span:last-child");
+  
+  // Initialize dark mode only if toggle exists
+  if (darkModeToggle) {
+    const themeIcon = darkModeToggle.querySelector(".theme-icon");
+    const themeText = darkModeToggle.querySelector(".theme-text");
 
-  // Initialize dark mode from localStorage
-  function initDarkMode() {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      document.body.classList.add("dark-mode");
-      updateDarkModeButton(true);
+    // Initialize dark mode from localStorage
+    function initDarkMode() {
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "dark") {
+        document.body.classList.add("dark-mode");
+        updateDarkModeButton(true);
+      }
     }
-  }
 
-  // Update dark mode button appearance
-  function updateDarkModeButton(isDark) {
-    if (isDark) {
-      themeIcon.textContent = "☀️";
-      themeText.textContent = "Light";
-    } else {
-      themeIcon.textContent = "🌙";
-      themeText.textContent = "Dark";
+    // Update dark mode button appearance
+    function updateDarkModeButton(isDark) {
+      if (themeIcon && themeText) {
+        if (isDark) {
+          themeIcon.textContent = "☀️";
+          themeText.textContent = "Light";
+        } else {
+          themeIcon.textContent = "🌙";
+          themeText.textContent = "Dark";
+        }
+      }
     }
-  }
 
-  // Toggle dark mode
-  function toggleDarkMode() {
-    const isDarkMode = document.body.classList.toggle("dark-mode");
-    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
-    updateDarkModeButton(isDarkMode);
-  }
+    // Toggle dark mode
+    function toggleDarkMode() {
+      const isDarkMode = document.body.classList.toggle("dark-mode");
+      localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+      updateDarkModeButton(isDarkMode);
+    }
 
-  // Add event listener for dark mode toggle
-  darkModeToggle.addEventListener("click", toggleDarkMode);
+    // Add event listener for dark mode toggle
+    darkModeToggle.addEventListener("click", toggleDarkMode);
+    
+    // Initialize dark mode on page load
+    initDarkMode();
+  }
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -897,7 +906,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
-  initDarkMode();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
