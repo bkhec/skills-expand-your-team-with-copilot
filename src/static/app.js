@@ -858,28 +858,59 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (button.classList.contains("share-copy")) {
       // Copy link to clipboard
       const shareLink = `${pageUrl}\n\n${shareText}`;
-      navigator.clipboard
-        .writeText(shareLink)
-        .then(() => {
-          // Change icon temporarily to show success
-          const icon = button.querySelector(".share-icon");
-          const originalIcon = icon.textContent;
-          icon.textContent = "✓";
-          button.style.backgroundColor = "var(--success)";
-
-          showMessage("Link copied to clipboard!", "success");
-
-          // Reset after 2 seconds
-          setTimeout(() => {
-            icon.textContent = originalIcon;
-            button.style.backgroundColor = "";
-          }, 2000);
-        })
-        .catch((error) => {
+      
+      // Try modern Clipboard API first, with fallback for older browsers
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard
+          .writeText(shareLink)
+          .then(() => {
+            showCopySuccess(button);
+          })
+          .catch((error) => {
+            console.error("Failed to copy:", error);
+            showMessage("Failed to copy link. Please try again.", "error");
+          });
+      } else {
+        // Fallback for older browsers or non-secure contexts
+        try {
+          const textArea = document.createElement("textarea");
+          textArea.value = shareLink;
+          textArea.style.position = "fixed";
+          textArea.style.left = "-999999px";
+          textArea.style.top = "-999999px";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          const successful = document.execCommand("copy");
+          document.body.removeChild(textArea);
+          
+          if (successful) {
+            showCopySuccess(button);
+          } else {
+            showMessage("Failed to copy link. Please try again.", "error");
+          }
+        } catch (error) {
           console.error("Failed to copy:", error);
           showMessage("Failed to copy link. Please try again.", "error");
-        });
+        }
+      }
     }
+  }
+
+  // Helper function to show copy success feedback
+  function showCopySuccess(button) {
+    const icon = button.querySelector(".share-icon");
+    const originalIcon = icon.textContent;
+    icon.textContent = "✓";
+    button.style.backgroundColor = "var(--success)";
+
+    showMessage("Link copied to clipboard!", "success");
+
+    // Reset after 2 seconds
+    setTimeout(() => {
+      icon.textContent = originalIcon;
+      button.style.backgroundColor = "";
+    }, 2000);
   }
 
   // Show message function
